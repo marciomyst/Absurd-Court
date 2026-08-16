@@ -23,7 +23,7 @@ export default defineConfig({
     {
       command: process.platform === 'win32'
         ? 'npm.cmd run start -- --host localhost --port 4200'
-        : 'pnpm run start -- --host localhost --port 4200',
+        : 'pnpm exec ng serve --configuration development --host localhost --port 4200',
       url: 'http://localhost:4200',
       timeout: 120_000,
       reuseExistingServer: !process.env.CI,
