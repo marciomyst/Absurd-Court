@@ -24,7 +24,19 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CourtDbContext>();
-    await db.Database.MigrateAsync();
+
+    // The MVP uses SQLite migrations locally. The production PostgreSQL database
+    // starts empty and is provisioned from the current relational model until a
+    // provider-specific migration history is introduced.
+    if (db.Database.IsNpgsql())
+    {
+        await db.Database.EnsureCreatedAsync();
+    }
+    else
+    {
+        await db.Database.MigrateAsync();
+    }
+
     await CaseBankSeeder.SeedAsync(db);
 }
 

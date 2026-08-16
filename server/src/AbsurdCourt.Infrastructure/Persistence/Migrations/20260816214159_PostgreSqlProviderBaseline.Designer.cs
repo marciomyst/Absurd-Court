@@ -3,6 +3,7 @@ using System;
 using AbsurdCourt.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AbsurdCourt.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CourtDbContext))]
-    partial class CourtDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260816214159_PostgreSqlProviderBaseline")]
+    partial class PostgreSqlProviderBaseline
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

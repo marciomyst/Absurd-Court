@@ -8,10 +8,19 @@ public sealed class CourtDbContextFactory : IDesignTimeDbContextFactory<CourtDbC
 {
     public CourtDbContext CreateDbContext(string[] args)
     {
-        var options = new DbContextOptionsBuilder<CourtDbContext>()
-            .UseSqlite("Data Source=absurdcourt.db")
-            .Options;
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Court")
+            ?? "Data Source=absurdcourt.db";
+        var optionsBuilder = new DbContextOptionsBuilder<CourtDbContext>();
 
-        return new CourtDbContext(options);
+        if (connectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+        {
+            optionsBuilder.UseNpgsql(connectionString);
+        }
+        else
+        {
+            optionsBuilder.UseSqlite(connectionString);
+        }
+
+        return new CourtDbContext(optionsBuilder.Options);
     }
 }

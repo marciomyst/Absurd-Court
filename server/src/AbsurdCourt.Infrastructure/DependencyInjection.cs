@@ -24,6 +24,11 @@ public static class DependencyInjection
 
             options.UseSqlite(connectionString, sqlite =>
                 sqlite.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+
+            // The committed history was created with SQLite. Keep the local MVP
+            // database compatible while PostgreSQL uses its own current model.
+            options.ConfigureWarnings(w => w.Ignore(
+                Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
         });
 
         services.AddScoped<IRoomRepository, RoomRepository>();
