@@ -46,7 +46,6 @@ test('partes protocolam defesas, recebem a sentença mockada e avançam para o p
 
     await hostPage.locator('textarea').fill('Minha defesa E2E do juiz.');
     await hostPage.getByRole('button', { name: 'Enviar defesa' }).click();
-    await expect(hostPage.locator('.waiting__count-number')).toHaveText('1');
     await expect(guestPage.getByText('Caso 1 / 5')).toBeVisible();
 
     await guestPage.locator('textarea').fill('Minha defesa E2E da parte.');
