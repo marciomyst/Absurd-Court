@@ -1,0 +1,53 @@
+name: Deploy API
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'server/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: absurd-court-api-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet test server/AbsurdCourt.slnx
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: az acr login --name ${{ vars.AZURE_ACR_NAME }}
+      - name: Build and publish image
+        run: |
+          image="${{ vars.AZURE_ACR_LOGIN_SERVER }}/absurd-court-api:${{ github.sha }}"
+          docker build --file server/src/AbsurdCourt.Api/Dockerfile --tag "$image" server
+          docker push "$image"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+      - uses: azure/cli@v2
+        with:
+          inlineScript: |
+            connection_string=$(az monitor app-insights component show --app ${{ vars.AZURE_APP_INSIGHTS_NAME }} --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} --query connectionString --output tsv)
+            az containerapp update \
+              --name ${{ vars.AZURE_CONTAINER_APP_NAME }} \
+              --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+              --image "$IMAGE" \
+              --set-env-vars ASPNETCORE_URLS=http://+:8080 APPLICATIONINSIGHTS_CONNECTION_STRING="$connection_string"
+            az containerapp ingress update \
+              --name ${{ vars.AZURE_CONTAINER_APP_NAME }} \
+              --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+              --target-port 8080
