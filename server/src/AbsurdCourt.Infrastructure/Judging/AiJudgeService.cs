@@ -32,14 +32,21 @@ public sealed class AiJudgeService(IAiProvider provider, ILogger<AiJudgeService>
 
             Julgue este caso. Escolha exatamente um réu vencedor — o mais convincente ou engraçado — e
             dê a ele 1000 pontos. Dê aos demais uma pontuação de consolação entre 100 e 600, proporcional
-            ao mérito da defesa. Escreva um parecer individual e cômico para cada réu. No campo "reu" da
-            resposta estruturada, use exclusivamente o rótulo de uma letra de cada defesa (por exemplo,
-            "A" e "B"), na mesma ordem em que as defesas foram apresentadas.
+            ao mérito da defesa. Devolva exatamente {submissions.Count} parecer(es), um para cada defesa.
+            Escreva um parecer individual e cômico para cada réu. No campo "reu" da resposta estruturada,
+            use exclusivamente o rótulo de uma letra de cada defesa (por exemplo, "A" e "B"), na mesma
+            ordem em que as defesas foram apresentadas.
             """;
 
         try
         {
             var response = await provider.JudgeAsync(new AiJudgeRequest(SystemPrompt, userPrompt), ct);
+            logger.LogInformation(
+                "Juiz IA retornou {RulingCount} parecer(es) para {SubmissionCount} defesa(s). Estrutura: {Rulings}.",
+                response.Rulings.Count,
+                labels.Count,
+                string.Join(", ", response.Rulings.Select((ruling, index) =>
+                    $"{index + 1}:{ruling.Label} (parecer={(string.IsNullOrWhiteSpace(ruling.Opinion) ? "ausente" : "ok")})")));
             return BuildJudgment(labels, response.Rulings);
         }
         catch (Exception ex) when (!ct.IsCancellationRequested)
@@ -49,7 +56,7 @@ public sealed class AiJudgeService(IAiProvider provider, ILogger<AiJudgeService>
         }
     }
 
-    private static RoundJudgment BuildJudgment(List<(string Label, Guid PlayerId)> labels, IReadOnlyList<AiRuling> rulings)
+    private RoundJudgment BuildJudgment(List<(string Label, Guid PlayerId)> labels, IReadOnlyList<AiRuling> rulings)
     {
         var verdicts = new Dictionary<Guid, Verdict>();
         var usedOpinions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -63,7 +70,14 @@ public sealed class AiJudgeService(IAiProvider provider, ILogger<AiJudgeService>
             var ruling = rulings.FirstOrDefault(r => string.Equals(NormalizeLabel(r.Label), label, StringComparison.OrdinalIgnoreCase))
                 ?? rulings.ElementAtOrDefault(index);
             var opinion = ruling?.Opinion;
-            if (string.IsNullOrWhiteSpace(opinion)) opinion = FallbackOpinion(label);
+            if (string.IsNullOrWhiteSpace(opinion))
+            {
+                logger.LogWarning(
+                    "Resposta do juiz IA sem parecer utilizável para o réu {Label}; rulings recebidos: {RulingCount}.",
+                    label,
+                    rulings.Count);
+                opinion = FallbackOpinion(label);
+            }
             if (!usedOpinions.Add(opinion.Trim()))
                 opinion = $"{opinion.Trim()} Análise individual registrada para o réu {label}.";
 

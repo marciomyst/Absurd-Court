@@ -4,12 +4,33 @@ using AbsurdCourt.Application.Features.Rooms.CreateRoom;
 using AbsurdCourt.Application.Abstractions;
 using AbsurdCourt.Infrastructure.Judging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.Json;
 
 namespace AbsurdCourt.Api.Tests;
 
 public class SecurityInfrastructureTests
 {
+    [Fact]
+    public async Task Judge_service_keeps_individual_opinions_when_provider_decorates_labels()
+    {
+        var firstPlayer = Guid.NewGuid();
+        var secondPlayer = Guid.NewGuid();
+        var provider = new StubAiProvider([
+            new AiRuling("Réu A", true, "A defesa A foi protocolada com pompa cartorial.", 1000),
+            new AiRuling("Réu B", false, "A defesa B foi recebida sob protesto do carimbo.", 300),
+        ]);
+        var judge = new AiJudgeService(provider, NullLogger<AiJudgeService>.Instance);
+
+        var judgment = await judge.JudgeRoundAsync("Autos", "Caso", [
+            new DefenseSubmission(firstPlayer, "Defesa A"),
+            new DefenseSubmission(secondPlayer, "Defesa B"),
+        ]);
+
+        Assert.Equal("A defesa A foi protocolada com pompa cartorial.", judgment.VerdictsByPlayer[firstPlayer].ParecerText);
+        Assert.Equal("A defesa B foi recebida sob protesto do carimbo.", judgment.VerdictsByPlayer[secondPlayer].ParecerText);
+    }
+
     [Fact]
     public async Task Mock_judge_returns_deterministic_rulings_without_external_calls()
     {
@@ -84,5 +105,11 @@ public class SecurityInfrastructureTests
         var json = JsonSerializer.Serialize(result);
 
         Assert.DoesNotContain(token.ToString(), json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private sealed class StubAiProvider(IReadOnlyList<AiRuling> rulings) : IAiProvider
+    {
+        public Task<AiJudgeResponse> JudgeAsync(AiJudgeRequest request, CancellationToken ct = default) =>
+            Task.FromResult(new AiJudgeResponse(rulings));
     }
 }

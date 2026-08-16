@@ -8,7 +8,9 @@ namespace AbsurdCourt.Infrastructure.Judging;
 /// <summary>Adaptador Gemini GenerateContent com saída JSON estruturada.</summary>
 public sealed class GeminiJudgeService(HttpClient http, IOptions<GeminiOptions> options) : IAiProvider
 {
-    private static readonly TimeSpan CallTimeout = TimeSpan.FromSeconds(8);
+    // O Gemini normalmente responde em poucos segundos, mas oito segundos deixava pouca
+    // margem para picos transitórios e transformava uma resposta válida em parecer de reserva.
+    private static readonly TimeSpan CallTimeout = TimeSpan.FromSeconds(12);
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly object RulingsSchema = new
     {
