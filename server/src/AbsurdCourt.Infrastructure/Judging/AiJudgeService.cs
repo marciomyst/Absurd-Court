@@ -32,7 +32,9 @@ public sealed class AiJudgeService(IAiProvider provider, ILogger<AiJudgeService>
 
             Julgue este caso. Escolha exatamente um réu vencedor — o mais convincente ou engraçado — e
             dê a ele 1000 pontos. Dê aos demais uma pontuação de consolação entre 100 e 600, proporcional
-            ao mérito da defesa. Escreva um parecer individual e cômico para cada réu.
+            ao mérito da defesa. Escreva um parecer individual e cômico para cada réu. No campo "reu" da
+            resposta estruturada, use exclusivamente o rótulo de uma letra de cada defesa (por exemplo,
+            "A" e "B"), na mesma ordem em que as defesas foram apresentadas.
             """;
 
         try
@@ -51,9 +53,15 @@ public sealed class AiJudgeService(IAiProvider provider, ILogger<AiJudgeService>
     {
         var verdicts = new Dictionary<Guid, Verdict>();
         var usedOpinions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (label, playerId) in labels)
+        for (var index = 0; index < labels.Count; index++)
         {
-            var ruling = rulings.FirstOrDefault(r => string.Equals(NormalizeLabel(r.Label), label, StringComparison.OrdinalIgnoreCase));
+            var (label, playerId) = labels[index];
+            // Gemini occasionally decorates the structured label ("Réu A", for
+            // example). Responses are requested in submission order, so index is
+            // a safe fallback that preserves the individual AI opinion instead of
+            // replacing it with the generic reserve text.
+            var ruling = rulings.FirstOrDefault(r => string.Equals(NormalizeLabel(r.Label), label, StringComparison.OrdinalIgnoreCase))
+                ?? rulings.ElementAtOrDefault(index);
             var opinion = ruling?.Opinion;
             if (string.IsNullOrWhiteSpace(opinion)) opinion = FallbackOpinion(label);
             if (!usedOpinions.Add(opinion.Trim()))
