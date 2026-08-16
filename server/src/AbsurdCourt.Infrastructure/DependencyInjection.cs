@@ -13,9 +13,18 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("Court") ?? "Data Source=absurdcourt.db";
-        services.AddDbContext<CourtDbContext>(options => options.UseSqlite(
-            connectionString,
-            sqlite => sqlite.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+        services.AddDbContext<CourtDbContext>(options =>
+        {
+            if (connectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+            {
+                options.UseNpgsql(connectionString, postgres =>
+                    postgres.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                return;
+            }
+
+            options.UseSqlite(connectionString, sqlite =>
+                sqlite.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+        });
 
         services.AddScoped<IRoomRepository, RoomRepository>();
         services.AddScoped<IMatchRepository, MatchRepository>();

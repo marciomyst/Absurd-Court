@@ -21,7 +21,9 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     {
-      command: 'npm.cmd run start -- --host localhost --port 4200',
+      command: process.platform === 'win32'
+        ? 'npm.cmd run start -- --host localhost --port 4200'
+        : 'pnpm run start -- --host localhost --port 4200',
       url: 'http://localhost:4200',
       timeout: 120_000,
       reuseExistingServer: !process.env.CI,

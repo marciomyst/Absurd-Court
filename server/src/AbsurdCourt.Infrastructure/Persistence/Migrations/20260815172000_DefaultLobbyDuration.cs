@@ -13,6 +13,16 @@ public partial class DefaultLobbyDuration : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
+        if (ActiveProvider.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            migrationBuilder.Sql("""
+                UPDATE "Rooms"
+                SET "SettingsRoundDurationSeconds" = 15
+                WHERE "Status" = 'Lobby' AND "SettingsRoundDurationSeconds" = 60;
+                """);
+            return;
+        }
+
         migrationBuilder.Sql("""
             UPDATE Rooms
             SET SettingsRoundDurationSeconds = 15
@@ -22,6 +32,16 @@ public partial class DefaultLobbyDuration : Migration
 
     protected override void Down(MigrationBuilder migrationBuilder)
     {
+        if (ActiveProvider.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            migrationBuilder.Sql("""
+                UPDATE "Rooms"
+                SET "SettingsRoundDurationSeconds" = 60
+                WHERE "Status" = 'Lobby' AND "SettingsRoundDurationSeconds" = 15;
+                """);
+            return;
+        }
+
         migrationBuilder.Sql("""
             UPDATE Rooms
             SET SettingsRoundDurationSeconds = 60

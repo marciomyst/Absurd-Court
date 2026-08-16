@@ -13,6 +13,16 @@ public partial class NormalizeRoomCodes : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
+        if (ActiveProvider.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            migrationBuilder.Sql("""
+                UPDATE "Rooms"
+                SET "Code" = LPAD(SPLIT_PART("Code", '-', 1), 4, '0') || '-' || LPAD(SPLIT_PART("Code", '-', 2), 4, '0')
+                WHERE "Code" ~ '^[0-9]{3}-[0-9]{3}$';
+                """);
+            return;
+        }
+
         migrationBuilder.Sql("""
             UPDATE Rooms
             SET Code = printf('%04d-%04d',
@@ -24,6 +34,16 @@ public partial class NormalizeRoomCodes : Migration
 
     protected override void Down(MigrationBuilder migrationBuilder)
     {
+        if (ActiveProvider.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            migrationBuilder.Sql("""
+                UPDATE "Rooms"
+                SET "Code" = LPAD(SPLIT_PART("Code", '-', 1), 3, '0') || '-' || LPAD(SPLIT_PART("Code", '-', 2), 3, '0')
+                WHERE "Code" ~ '^[0-9]{4}-[0-9]{4}$';
+                """);
+            return;
+        }
+
         migrationBuilder.Sql("""
             UPDATE Rooms
             SET Code = printf('%03d-%03d',
