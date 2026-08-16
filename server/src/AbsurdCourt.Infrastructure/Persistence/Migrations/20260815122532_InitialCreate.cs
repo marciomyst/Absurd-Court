@@ -47,7 +47,7 @@ namespace AbsurdCourt.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Code = table.Column<string>(type: "TEXT", maxLength: 7, nullable: false),
+                    Code = table.Column<string>(type: "TEXT", maxLength: 14, nullable: false),
                     Status = table.Column<string>(type: "TEXT", maxLength: 16, nullable: false),
                     HostPlayerId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false),

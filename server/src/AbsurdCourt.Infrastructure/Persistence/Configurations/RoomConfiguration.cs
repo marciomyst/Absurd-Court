@@ -19,7 +19,7 @@ public sealed class RoomConfiguration : IEntityTypeConfiguration<Room>
 
         builder.Property(r => r.Code)
             .HasConversion(c => c.Value, v => RoomCode.Create(v))
-            .HasMaxLength(7)
+            .HasMaxLength(14)
             .IsRequired();
         builder.HasIndex(r => r.Code).IsUnique();
 
