@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/artifacts/
+*.db
+*.db-shm
+*.db-wal
+*.log
+TestResults/
+client/test-results/
+client/playwright-report/
+client/coverage/
+.vs/
+.vscode/

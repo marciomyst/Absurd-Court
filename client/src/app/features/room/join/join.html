@@ -1,0 +1,65 @@
+<div class="join">
+  <button class="join__back" (click)="goBack()">← Voltar</button>
+
+  <div class="join__header">
+    <span class="tda-label">Pauta do julgamento</span>
+    <span class="tda-label join__header-accent">Entrada do julgamento</span>
+  </div>
+
+  <div class="tda-card join__process-card">
+    <div class="tda-label join__process-label">Processo nº</div>
+    <input
+      class="join__code-input"
+      type="text"
+      inputmode="text"
+      autocomplete="off"
+      maxlength="14"
+      placeholder="0000-0000-0000"
+      aria-label="Código do processo"
+      [value]="formattedInputCode"
+      (input)="onCodeInput($any($event.target))"
+      (paste)="onCodePaste($event)"
+    />
+    <div class="join__hint">Informe o código exibido pelo juiz da sessão.</div>
+  </div>
+
+  <button class="join__scan-button" type="button" (click)="openScanner()">
+    <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+      <path d="M4 4h5v2H6v3H4V4Zm11 0h5v5h-2V6h-3V4ZM4 15h2v3h3v2H4v-5Zm14 0h2v5h-5v-2h3v-3ZM8 8h3v3H8V8Zm5 0h3v3h-3V8Zm-5 5h3v3H8v-3Zm5 0h3v3h-3v-3Z" />
+    </svg>
+    Ler QR Code com a câmera
+  </button>
+
+  <div class="tda-label join__section-label">Identificação da parte</div>
+  <input
+    id="join-name"
+    class="tda-field"
+    type="text"
+    maxlength="24"
+    [placeholder]="placeholder"
+    [(ngModel)]="name"
+    (keydown.enter)="enterRoom()"
+  />
+
+  @if (error()) {
+    <p class="join__error">{{ error() }}</p>
+  }
+
+  <div class="join__spacer"></div>
+
+  <button class="tda-btn-primary" [disabled]="!ready || busy()" (click)="enterRoom()">Entrar no julgamento</button>
+</div>
+
+@if (scannerOpen()) {
+  <div class="join__scanner-backdrop" role="presentation" (click)="closeScanner()">
+    <section class="join__scanner-modal" role="dialog" aria-modal="true" aria-labelledby="scanner-title" (click)="$event.stopPropagation()">
+      <button class="join__scanner-close" type="button" aria-label="Fechar leitor" (click)="closeScanner()">×</button>
+      <div class="tda-label">Entrada do julgamento</div>
+      <h2 id="scanner-title">Aponte para o QR Code</h2>
+      <div class="join__scanner-frame">
+        <video #scannerVideo playsinline muted></video>
+      </div>
+      <p>Posicione o QR Code dentro da moldura.</p>
+    </section>
+  </div>
+}

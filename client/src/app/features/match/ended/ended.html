@@ -1,0 +1,30 @@
+<div class="ended">
+  <div class="ended__title">Sessão<br /><span>encerrada</span></div>
+  <p class="ended__subtitle">Desejam reabrir o tribunal?</p>
+
+  <div class="tda-label ended__section-label">Placar final</div>
+  <div class="ended__standings">
+    @for (row of ranked(); track row.player.playerId; let i = $index) {
+      <div class="ended__row" [class.first]="i === 0">
+        <span class="ended__rank">{{ i + 1 }}</span>
+        <div class="tda-avatar" style="--tda-avatar-size: 30px" [style.--tda-avatar-color]="playerColor(row.player.playerId)">
+          {{ row.player.initials }}
+        </div>
+        <span class="ended__name">{{ row.player.name }}</span>
+        <span class="ended__points">{{ row.points }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="ended__ready-row">
+    <div class="ended__ready-badge">{{ readyCount() }}/{{ players().length }}</div>
+    <p class="ended__ready-text">Partes prontas para a revanche.</p>
+  </div>
+
+  <div class="ended__spacer"></div>
+
+  <button class="tda-btn-primary" [disabled]="busy()" (click)="toggleReady()">
+    {{ iAmReady() ? 'Cancelar revanche' : 'Continuar jogando' }}
+  </button>
+  <button class="tda-btn-ghost" style="margin-top: 10px" (click)="leaveRoom()">Sair da sala</button>
+</div>

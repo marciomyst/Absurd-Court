@@ -1,0 +1,30 @@
+@if (gameState.errorMessage(); as error) {
+  <div class="tda-toast">
+    {{ error }}
+    <button (click)="gameState.clearError()">✕</button>
+  </div>
+}
+
+@switch (gameState.screen()) {
+  @case ('home') {
+    <app-home />
+  }
+  @case ('join') {
+    <app-join />
+  }
+  @case ('lobby') {
+    <app-lobby />
+  }
+  @case ('case') {
+    <app-case />
+  }
+  @case ('waiting') {
+    <app-waiting />
+  }
+  @case ('verdict') {
+    <app-verdict />
+  }
+  @case ('ended') {
+    <app-ended />
+  }
+}

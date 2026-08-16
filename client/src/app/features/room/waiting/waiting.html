@@ -1,0 +1,48 @@
+@if (allFiled()) {
+  <div class="deliberating">
+    <div class="deliberating__badge">⚖</div>
+    <div>
+      <div class="tda-label">Em deliberação</div>
+      <div class="deliberating__title">Supremo<br />Tribunal <span>Digital</span></div>
+    </div>
+    <p class="deliberating__text">Estamos analisando os depoimentos absurdos…</p>
+    <div class="deliberating__sweep"></div>
+  </div>
+} @else if (round(); as round) {
+  <div class="waiting">
+    <div class="waiting__header">
+      <span class="tda-label" style="color: var(--tda-ink-dim)">Protocolo · Caso {{ round.caseNo }}/{{ round.caseTotal }}</span>
+      <span class="tda-label" style="color: var(--tda-gold-bright)">Em curso</span>
+    </div>
+    <hr class="tda-divider" />
+
+    <div class="waiting__count">
+      <div class="waiting__count-number">{{ filedIds().length }}</div>
+      <div>
+        <div class="waiting__count-label">de {{ players().length }} depoimentos</div>
+        <div class="waiting__count-sub">protocolados nesta sessão</div>
+      </div>
+    </div>
+
+    <div class="waiting__progress">
+      @for (row of rows(); track row.player.playerId) {
+        <div class="waiting__progress-seg" [class.on]="row.filed"></div>
+      }
+    </div>
+
+    <div class="tda-label" style="margin: 30px 0 6px">Partes</div>
+    <div class="waiting__players">
+      @for (row of rows(); track row.player.playerId) {
+        <div class="waiting__player-row">
+          <div class="tda-avatar" [style.--tda-avatar-color]="playerColor(row.player.playerId)">{{ row.player.initials }}</div>
+          <span class="waiting__player-name">{{ row.player.name }}</span>
+          <span class="waiting__dot" [class.on]="row.filed"></span>
+          <span class="waiting__state" [class.on]="row.filed">{{ row.filed ? 'PROTOCOLADO' : 'REDIGINDO' }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="waiting__spacer"></div>
+    <p class="waiting__footer">A sentença será proferida quando todas as partes protocolarem.</p>
+  </div>
+}

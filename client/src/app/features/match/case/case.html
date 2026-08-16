@@ -1,0 +1,38 @@
+@if (round(); as round) {
+  <div class="case">
+    <div class="case__header">
+      <div
+        class="case__ring"
+        [style.background]="'conic-gradient(' + (isLow() ? '#c4614f' : 'var(--tda-gold)') + ' ' + percentRemaining() + '%, rgba(237,231,218,.1) 0)'"
+      >
+        <div class="case__ring-inner">{{ remainingSeconds() }}</div>
+      </div>
+      <div>
+        <div class="tda-label">Caso {{ round.caseNo }} / {{ round.caseTotal }}</div>
+        <div class="case__hint">{{ round.hint }}</div>
+      </div>
+    </div>
+
+    <div class="tda-card case__autos">
+      <div class="case__autos-label">Os autos</div>
+      <div class="case__autos-text">{{ round.autos }}</div>
+    </div>
+
+    <div class="tda-label case__defense-label">Sua defesa</div>
+    <textarea
+      class="tda-field"
+      placeholder="Excelência, os fatos foram distorcidos…"
+      [ngModel]="defense"
+      (ngModelChange)="onDefenseInput($event)"
+      [disabled]="busy()"
+    ></textarea>
+    <div class="case__counter">
+      <span>Máx. {{ maxLength }} caracteres</span>
+      <span>{{ defense.length }}/{{ maxLength }}</span>
+    </div>
+
+    <div class="case__spacer"></div>
+
+    <button class="tda-btn-primary" [disabled]="!defense.trim() || busy()" (click)="submit()">Enviar defesa</button>
+  </div>
+}

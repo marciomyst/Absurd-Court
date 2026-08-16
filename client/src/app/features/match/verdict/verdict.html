@@ -1,0 +1,72 @@
+@if (round(); as round) {
+  <div class="verdict">
+    <div class="verdict__eyebrow">
+      <span class="tda-label">A sentença · Caso {{ round.caseNo }}</span>
+      <hr class="tda-divider" style="background: linear-gradient(90deg,transparent,rgba(201,162,74,.7),transparent)" />
+    </div>
+
+    @if (winnerResult(); as winner) {
+      <div class="verdict__winner">
+        <div class="tda-avatar" style="--tda-avatar-size: 48px" [style.--tda-avatar-color]="playerColor(winner.playerId)">
+          {{ playerInitials(winner.playerId) }}
+        </div>
+        <div style="flex: 1">
+          <div class="tda-label" style="color: var(--tda-gold-bright)">Vencedor</div>
+          <div class="verdict__winner-name">{{ playerName(winner.playerId) }}</div>
+        </div>
+        <div class="verdict__winner-points">+{{ winner.points }}</div>
+      </div>
+
+      <blockquote class="verdict__winner-defense">{{ winner.defenseText || '(nenhuma defesa protocolada)' }}</blockquote>
+
+      <div class="tda-card verdict__parecer">
+        <div class="verdict__parecer-label">Parecer do juiz</div>
+        <div class="verdict__parecer-text">{{ winner.parecerText }}</div>
+      </div>
+    }
+
+    @if (otherResults().length > 0) {
+      <div class="tda-label" style="margin: 28px 0 12px">Demais depoimentos</div>
+      <div class="verdict__others">
+        @for (result of otherResults(); track result.playerId) {
+          <button class="verdict__other-row" [class.open]="openPlayerId() === result.playerId" (click)="toggleOther(result.playerId)">
+            <div class="tda-avatar" style="--tda-avatar-size: 28px" [style.--tda-avatar-color]="playerColor(result.playerId)">
+              {{ playerInitials(result.playerId) }}
+            </div>
+            <div style="flex: 1; text-align: left">
+              <div class="verdict__other-head">
+                <span>{{ playerName(result.playerId).toUpperCase() }}</span>
+                <span>+{{ result.points }}</span>
+              </div>
+              <div class="verdict__other-defense">{{ result.defenseText || '(nenhuma defesa protocolada)' }}</div>
+              @if (openPlayerId() === result.playerId) {
+                <div class="verdict__other-judge">
+                  <div class="tda-label" style="color: var(--tda-gold-bright)">Parecer do juiz</div>
+                  <div class="verdict__other-judge-text">{{ result.parecerText }}</div>
+                </div>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    }
+
+    @if (error()) {
+      <p class="verdict__error">{{ error() }}</p>
+    }
+
+    <div class="verdict__spacer"></div>
+
+    @if (isHost()) {
+      <button class="tda-btn-primary" [disabled]="busy()" (click)="advance()">
+        {{ isLastCase() ? 'Encerrar sessão' : 'Próximo caso' }}
+        <span class="verdict__countdown">{{ remainingSeconds() }}s</span>
+      </button>
+    } @else {
+      <p class="verdict__hint">
+        Aguardando o juiz avançar…
+        <span class="verdict__countdown">{{ remainingSeconds() }}s</span>
+      </p>
+    }
+  </div>
+}
