@@ -123,8 +123,16 @@ export class GameStateService {
   }
 
   async submitDefense(text: string): Promise<void> {
-    await this.hub.submitDefense(text);
     this.screenState.showWaiting();
+    try {
+      await this.hub.submitDefense(text);
+    } catch (error) {
+      // The screen changes optimistically so the final filing never remains on
+      // the testimony form while the server asks Gemini for the verdict.
+      // If the submission itself is rejected, let the player correct it.
+      this.screenState.showCase();
+      throw error;
+    }
   }
 
   nextRound(): Promise<void> {
