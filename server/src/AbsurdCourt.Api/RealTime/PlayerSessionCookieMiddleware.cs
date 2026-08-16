@@ -5,11 +5,13 @@ namespace AbsurdCourt.Api.RealTime;
 public sealed class PlayerSessionCookieMiddleware(RequestDelegate next)
 {
     public const string CookieName = "absurd-court-session";
+    public const string QueryParameterName = "sessionId";
 
     public async Task InvokeAsync(HttpContext context)
     {
         if (context.Request.Path.StartsWithSegments("/hubs/court") &&
-            !context.Request.Cookies.ContainsKey(CookieName))
+            !context.Request.Cookies.ContainsKey(CookieName) &&
+            !Guid.TryParse(context.Request.Query[QueryParameterName], out _))
         {
             var sessionId = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
             context.Response.Cookies.Append(CookieName, sessionId, new CookieOptions

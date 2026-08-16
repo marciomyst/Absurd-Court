@@ -95,9 +95,15 @@ public sealed class CourtHub(ISender sender, PlayerSessionStore sessions, ILogge
             throw new HubException("Esta conexÃ£o jÃ¡ estÃ¡ vinculada a uma sala.");
     }
 
-    private string GetSessionId() =>
-        Context.GetHttpContext()?.Request.Cookies[PlayerSessionCookieMiddleware.CookieName]
-        ?? throw new HubException("A sessÃ£o do navegador nÃ£o foi inicializada.");
+    private string GetSessionId()
+    {
+        var request = Context.GetHttpContext()?.Request;
+        if (Guid.TryParse(request?.Query[PlayerSessionCookieMiddleware.QueryParameterName], out var sessionId))
+            return sessionId.ToString("N");
+
+        return request?.Cookies[PlayerSessionCookieMiddleware.CookieName]
+            ?? throw new HubException("A sessão do navegador não foi inicializada.");
+    }
 
     private Guid GetRoomId() =>
         Context.Items.TryGetValue(RoomIdKey, out var v) ? (Guid)v! : throw new HubException("Você ainda não entrou em uma sala.");

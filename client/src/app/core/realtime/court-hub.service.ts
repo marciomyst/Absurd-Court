@@ -5,8 +5,16 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CourtHubService {
+  private static readonly sessionStorageKey = 'absurd-court-signalr-session';
+  private readonly browserSessionId = this.getBrowserSessionId();
+
   private readonly connection = new signalR.HubConnectionBuilder()
-    .withUrl(environment.hubUrl, { withCredentials: true })
+    // The production frontend and API use different site domains. A third-party
+    // HttpOnly cookie would be blocked by modern browsers, so carry a random,
+    // per-tab reconnect identifier in the hub URL instead.
+    .withUrl(`${environment.hubUrl}?sessionId=${encodeURIComponent(this.browserSessionId)}`, {
+      withCredentials: false,
+    })
     .withAutomaticReconnect()
     .build();
 
@@ -24,6 +32,15 @@ export class CourtHubService {
   }
 
   private readonly reconnectedHandlers: Array<() => void> = [];
+
+  private getBrowserSessionId(): string {
+    const existing = sessionStorage.getItem(CourtHubService.sessionStorageKey);
+    if (existing) return existing;
+
+    const sessionId = crypto.randomUUID();
+    sessionStorage.setItem(CourtHubService.sessionStorageKey, sessionId);
+    return sessionId;
+  }
 
   /**
    * withAutomaticReconnect() transparently re-establishes the transport, but the server
