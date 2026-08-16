@@ -43,11 +43,12 @@ jobs:
           inlineScript: |
             connection_string=$(az monitor app-insights component show --app ${{ vars.AZURE_APP_INSIGHTS_NAME }} --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} --query connectionString --output tsv)
             signalr_host=$(az signalr show --name ${{ vars.AZURE_SIGNALR_NAME }} --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} --query hostName --output tsv)
+            static_web_app_host=$(az staticwebapp show --name ${{ vars.AZURE_STATIC_WEB_APP_NAME }} --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} --query defaultHostname --output tsv)
             az containerapp update \
               --name ${{ vars.AZURE_CONTAINER_APP_NAME }} \
               --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
               --image "$IMAGE" \
-              --set-env-vars ASPNETCORE_URLS=http://+:8080 APPLICATIONINSIGHTS_CONNECTION_STRING="$connection_string" Azure__SignalR__ConnectionString="Endpoint=https://$signalr_host;AuthType=azure.msi;Version=1.0;"
+              --set-env-vars ASPNETCORE_URLS=http://+:8080 APPLICATIONINSIGHTS_CONNECTION_STRING="$connection_string" Azure__SignalR__ConnectionString="Endpoint=https://$signalr_host;AuthType=azure.msi;Version=1.0;" Cors__StaticWebAppOrigin="https://$static_web_app_host"
             az containerapp ingress update \
               --name ${{ vars.AZURE_CONTAINER_APP_NAME }} \
               --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \

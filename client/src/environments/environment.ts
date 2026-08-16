@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  hubUrl: 'http://localhost:5122/hubs/court',
+  hubUrl: 'https://absurd-court-api.wittymeadow-8dd2fe2c.northcentralus.azurecontainerapps.io/hubs/court',
 };

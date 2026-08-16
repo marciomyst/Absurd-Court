@@ -28,10 +28,20 @@ public static class DependencyInjection
 
         services.AddCors(options =>
         {
+            var allowedOrigins = new[]
+            {
+                "http://localhost:4200",
+                configuration["Cors:StaticWebAppOrigin"],
+            }
+                .Where(origin => !string.IsNullOrWhiteSpace(origin))
+                .Cast<string>()
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
             // SignalR needs credentialed CORS (cookies/auth headers aren't used here, but the
             // negotiate handshake still requires AllowCredentials), so no wildcard origin.
             options.AddPolicy(AngularDevCorsPolicy, policy => policy
-                .WithOrigins("http://localhost:4200")
+                .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials());
