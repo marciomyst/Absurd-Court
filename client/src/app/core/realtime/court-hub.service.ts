@@ -68,6 +68,15 @@ export class CourtHubService {
     await this.startPromise;
   }
 
+  /** Ends the current hub connection so its server-side room identity is released. */
+  async disconnect(): Promise<void> {
+    this.startPromise = null;
+    if (this.connection.state !== signalR.HubConnectionState.Disconnected) {
+      await this.connection.stop();
+    }
+    this.state.set(this.connection.state);
+  }
+
   on<T>(methodName: string, handler: (payload: T) => void): void {
     this.connection.on(methodName, handler);
   }

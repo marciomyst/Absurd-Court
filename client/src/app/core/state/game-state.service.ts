@@ -104,10 +104,17 @@ export class GameStateService {
     this.screenState.showLobby();
   }
 
-  goHome(): void {
-    this.clearPersistedIdentity();
-    this.roomState.clear();
-    this.screenState.showHome();
+  async goHome(): Promise<void> {
+    try {
+      // The Hub keeps a room identity per connection. Stop it before allowing a
+      // new room to be created, otherwise CreateRoom is rightly rejected as
+      // an attempt to join two rooms on one connection.
+      await this.hub.disconnect();
+    } finally {
+      this.clearPersistedIdentity();
+      this.roomState.clear();
+      this.screenState.showHome();
+    }
   }
 
   goJoin(): void {

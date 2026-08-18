@@ -79,4 +79,14 @@ export class Lobby {
       this.busy.set(false);
     }
   }
+
+  async cancelAndReturn(): Promise<void> {
+    if (this.busy()) return;
+    this.busy.set(true);
+    try {
+      await this.gameState.goHome();
+    } finally {
+      this.busy.set(false);
+    }
+  }
 }

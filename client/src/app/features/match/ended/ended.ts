@@ -37,7 +37,7 @@ export class Ended {
     }
   }
 
-  leaveRoom(): void {
-    this.gameState.goHome();
+  async leaveRoom(): Promise<void> {
+    await this.gameState.goHome();
   }
 }

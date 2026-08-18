@@ -109,7 +109,7 @@
 
   @if (gameState.isHost()) {
     <button class="tda-btn-primary" [disabled]="!canStart()" (click)="startMatch()">Iniciar julgamento</button>
-    <button class="tda-btn-ghost lobby__cancel-button" type="button" (click)="gameState.goHome()">Cancelar e voltar</button>
+    <button class="tda-btn-ghost lobby__cancel-button" type="button" [disabled]="busy()" (click)="cancelAndReturn()">Cancelar e voltar</button>
     @if (players().length < 2) {
       <p class="lobby__hint">São necessários pelo menos 2 jogadores.</p>
     }

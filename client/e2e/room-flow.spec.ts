@@ -31,3 +31,17 @@ test('juiz cria uma sala e outra parte entra usando o código da sessão', async
   await guestContext.close();
   await hostContext.close();
 });
+
+test('juiz pode cancelar a pauta e criar uma nova sala na mesma aba', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#home-name').fill('Juiz E2E');
+  await page.getByRole('button', { name: 'Criar novo julgamento' }).click();
+  await expect(page.locator('.lobby__room-code')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Cancelar e voltar' }).click();
+  await expect(page.locator('#home-name')).toBeVisible();
+
+  await page.locator('#home-name').fill('Juiz E2E');
+  await page.getByRole('button', { name: 'Criar novo julgamento' }).click();
+  await expect(page.locator('.lobby__room-code')).toBeVisible();
+});
