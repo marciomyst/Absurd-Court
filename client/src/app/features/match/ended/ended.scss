@@ -1,0 +1,125 @@
+.ended {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px 20px 40px;
+}
+
+.ended__title {
+  font-family: var(--tda-font-display);
+  font-size: 44px;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+
+  span {
+    color: var(--tda-gold-bright);
+  }
+}
+
+.ended__subtitle {
+  font-family: var(--tda-font-display);
+  font-size: 15px;
+  color: var(--tda-ink-dim);
+  margin-top: 16px;
+}
+
+.ended__section-label {
+  margin: 32px 0 8px;
+}
+
+.ended__standings {
+  display: flex;
+  flex-direction: column;
+}
+
+.ended__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 2px;
+  border-bottom: 1px solid var(--tda-ink-ghost);
+
+  &.first {
+    border-bottom-color: rgba(201, 162, 74, 0.5);
+  }
+}
+
+.ended__rank {
+  font-family: var(--tda-font-mono);
+  font-size: 10px;
+  color: var(--tda-ink-faint);
+  width: 14px;
+}
+
+.ended__name {
+  font-family: var(--tda-font-display);
+  font-size: 17px;
+  flex: 1;
+}
+
+.ended__points {
+  font-family: var(--tda-font-display);
+  font-size: 22px;
+}
+
+.ended__ready-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 0;
+}
+
+.ended__ready-badge {
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(201, 162, 74, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--tda-font-display);
+  font-size: 17px;
+  color: var(--tda-gold-bright);
+  border-radius: 12px;
+  flex: none;
+}
+
+.ended__ready-text {
+  font-family: var(--tda-font-display);
+  font-size: 14px;
+  color: var(--tda-ink-dim);
+  flex: 1;
+}
+
+.ended__spacer {
+  flex: 0 1 clamp(36px, 8vh, 88px);
+  min-height: 36px;
+}
+
+@media (max-width: 599px) {
+  .ended__title {
+    font-size: clamp(36px, 11vw, 44px);
+  }
+
+  .ended__name {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (min-width: 600px) {
+  .ended {
+    max-width: 560px;
+    padding: 48px 32px 56px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ended {
+    max-width: 640px;
+    padding: 56px 40px 72px;
+  }
+}

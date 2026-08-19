@@ -1,0 +1,131 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px 20px 40px;
+}
+
+.home__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 26px;
+}
+
+.home__header-accent {
+  color: var(--tda-gold-bright);
+}
+
+.home__welcome-card {
+  margin-top: 14px;
+}
+
+.home__title {
+  margin-top: 14px;
+}
+
+.home__section-label {
+  margin: 28px 0 12px;
+}
+
+.home__title {
+  font-family: var(--tda-font-display);
+  font-size: clamp(40px, 11vw, 48px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+  margin: 14px 0 0;
+
+  span {
+    color: var(--tda-gold-bright);
+  }
+}
+
+.home__tagline {
+  font-family: var(--tda-font-display);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--tda-ink-dim);
+  max-width: 280px;
+  margin: 20px 0 0;
+}
+
+.home__spacer {
+  flex: 1;
+  min-height: 36px;
+}
+
+.home__error {
+  color: #ff8a80;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
+.home__primary-action {
+  margin-top: 16px;
+}
+
+.home__or {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 24px 0;
+  font-family: var(--tda-font-display);
+  font-size: 13px;
+  color: var(--tda-ink-faint);
+}
+
+.home__or-divider {
+  flex: 1;
+  margin: 0;
+}
+
+// Tablet: preserve the compact single-column composition while giving the
+// content more breathing room on medium screens.
+@media (min-width: 600px) and (max-width: 1023px) {
+  .home {
+    max-width: 560px;
+    padding: 48px 32px 56px;
+  }
+
+  .home__title {
+    font-size: 56px;
+  }
+
+  .home__spacer {
+    flex-basis: clamp(56px, 10vh, 100px);
+  }
+
+  .home__primary-action {
+    margin-top: 18px;
+  }
+}
+
+// Desktop: keep the game focused in a readable central column instead of
+// pushing the form to the bottom of the viewport.
+@media (min-width: 1024px) {
+  .home {
+    max-width: 640px;
+    padding: 56px 40px 72px;
+  }
+
+  .home__title {
+    font-size: 64px;
+  }
+
+  .home__tagline {
+    font-size: 17px;
+  }
+
+  .home__spacer {
+    flex-basis: clamp(72px, 12vh, 128px);
+  }
+
+  .home__primary-action {
+    margin-top: 20px;
+  }
+}

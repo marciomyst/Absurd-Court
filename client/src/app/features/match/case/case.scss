@@ -1,0 +1,127 @@
+.case {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px 20px 40px;
+}
+
+.case__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.case__ring {
+  width: 66px;
+  height: 66px;
+  flex: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s linear;
+}
+
+.case__ring-inner {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--tda-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--tda-font-display);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.case__hint {
+  font-family: var(--tda-font-display);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--tda-ink-dim);
+  margin-top: 4px;
+}
+
+.case__autos {
+  margin-top: 24px;
+  position: relative;
+}
+
+.case__autos-label {
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  background: var(--tda-bg);
+  padding: 0 8px;
+  font-size: 8.5px;
+  letter-spacing: 0.26em;
+  color: var(--tda-gold-bright);
+  font-family: var(--tda-font-mono);
+}
+
+.case__autos-text {
+  font-family: var(--tda-font-display);
+  font-size: 19px;
+  line-height: 1.5;
+  letter-spacing: -0.008em;
+}
+
+.case__defense-label {
+  margin: 26px 0 9px;
+  display: block;
+}
+
+.case__counter {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-family: var(--tda-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--tda-ink-faint);
+}
+
+.case__spacer {
+  flex: 0 1 clamp(36px, 8vh, 88px);
+  min-height: 36px;
+}
+
+@media (max-width: 599px) {
+  .case__header {
+    gap: 12px;
+  }
+
+  .case__ring {
+    width: 58px;
+    height: 58px;
+  }
+
+  .case__ring-inner {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .case__hint {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 600px) {
+  .case {
+    max-width: 560px;
+    padding: 48px 32px 56px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .case {
+    max-width: 640px;
+    padding: 56px 40px 72px;
+  }
+}

@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>49a346a8-5256-4587-97ae-d1be6ee2189f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="14.2.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
+    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.33.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AbsurdCourt.Domain\AbsurdCourt.Domain.csproj" />
+    <ProjectReference Include="..\AbsurdCourt.Application\AbsurdCourt.Application.csproj" />
+    <ProjectReference Include="..\AbsurdCourt.Infrastructure\AbsurdCourt.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

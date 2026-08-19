@@ -1,0 +1,26 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+
+namespace AbsurdCourt.Infrastructure.Persistence;
+
+/// <summary>Lets `dotnet ef` construct CourtDbContext directly at design time, without spinning up the whole app's DI container (which needs services — like the LLM judge — that migrations don't care about).</summary>
+public sealed class CourtDbContextFactory : IDesignTimeDbContextFactory<CourtDbContext>
+{
+    public CourtDbContext CreateDbContext(string[] args)
+    {
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Court")
+            ?? "Data Source=absurdcourt.db";
+        var optionsBuilder = new DbContextOptionsBuilder<CourtDbContext>();
+
+        if (connectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+        {
+            optionsBuilder.UseNpgsql(connectionString);
+        }
+        else
+        {
+            optionsBuilder.UseSqlite(connectionString);
+        }
+
+        return new CourtDbContext(optionsBuilder.Options);
+    }
+}

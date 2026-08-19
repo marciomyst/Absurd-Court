@@ -1,0 +1,6 @@
+@AbsurdCourt.Api_HostAddress = http://localhost:5122
+
+GET {{AbsurdCourt.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

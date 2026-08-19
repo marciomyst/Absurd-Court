@@ -1,0 +1,41 @@
+<div class="home">
+  <div class="home__header">
+    <span class="tda-label">Tribunal do Absurdo</span>
+    <span class="tda-label home__header-accent">Início</span>
+  </div>
+
+  <div class="tda-card home__welcome-card">
+    <div class="tda-label">Sessão extraordinária</div>
+    <h1 class="home__title">Tribunal<br />do <span>Absurdo</span></h1>
+    <p class="home__tagline">A justiça é cega. Nós somos loucos.</p>
+  </div>
+
+  <div class="tda-label home__section-label">Identificação da parte</div>
+  <input
+    id="home-name"
+    class="tda-field"
+    type="text"
+    maxlength="24"
+    [placeholder]="placeholder"
+    [(ngModel)]="name"
+    (keydown.enter)="createRoom()"
+  />
+
+  @if (error()) {
+    <p class="home__error">{{ error() }}</p>
+  }
+
+  <div class="home__spacer"></div>
+
+  <button class="home__primary-action tda-btn-primary" [disabled]="!name.trim() || busy()" (click)="createRoom()">
+    Criar novo julgamento
+  </button>
+
+  <div class="home__or">
+    <div class="tda-divider home__or-divider"></div>
+    <span>ou</span>
+    <div class="tda-divider home__or-divider"></div>
+  </div>
+
+  <button class="tda-btn-ghost" (click)="goJoin()">Participar de um julgamento</button>
+</div>

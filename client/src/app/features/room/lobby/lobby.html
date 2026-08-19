@@ -1,0 +1,120 @@
+<div class="lobby">
+  <div class="lobby__header">
+    <span class="tda-label">Pauta do julgamento</span>
+    @if (gameState.isHost()) {
+      <span class="tda-label" style="color: var(--tda-gold-bright)">Você é o juiz</span>
+    }
+  </div>
+
+  <div class="tda-card lobby__room-card">
+    <div class="lobby__room-content">
+      <div class="tda-label">Processo nº</div>
+      <div class="lobby__room-code">{{ gameState.room()?.roomCode }}</div>
+      <div class="lobby__room-hint">Compartilhe o código com os outros jogadores</div>
+    </div>
+  </div>
+
+  <button class="lobby__qr-button" type="button" (click)="showQrCode()">
+    <svg class="lobby__qr-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+      <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" />
+    </svg>
+    Mostrar QR Code de entrada do julgamento
+  </button>
+
+  @if (qrCodeUrl(); as qrCode) {
+    <div class="lobby__qr-backdrop" role="presentation" (click)="closeQrCode()">
+      <section class="lobby__qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-title" (click)="$event.stopPropagation()">
+        <button class="lobby__qr-close" type="button" aria-label="Fechar QR Code" (click)="closeQrCode()">×</button>
+        <div class="tda-label">Entrada do julgamento</div>
+        <h2 id="qr-title">Escaneie para Entrar</h2>
+        <img class="lobby__qr-image" [src]="qrCode" alt="QR Code da sala" />
+        <div class="lobby__qr-divider" aria-hidden="true"></div>
+        <p>Ou use o código abaixo para entrar</p>
+        <div class="lobby__qr-code">{{ gameState.room()?.roomCode }}</div>
+      </section>
+    </div>
+  }
+
+  <div class="tda-label lobby__section-label">Configurações</div>
+  <div class="lobby__setting-row">
+    <span class="lobby__setting-name">Casos</span>
+    <div class="lobby__seg-group">
+      @for (opt of caseOptions; track opt) {
+        <button
+          class="tda-seg"
+          [class.active]="caseCount() === opt"
+          [disabled]="!gameState.isHost() || lockedCaseOptions.has(opt)"
+          (click)="setCaseCount(opt)"
+        >
+          {{ opt }} @if (lockedCaseOptions.has(opt)) { 🔒 }
+        </button>
+      }
+    </div>
+  </div>
+  <div class="lobby__setting-row">
+    <span class="lobby__setting-name">Tempo</span>
+    <div class="lobby__seg-group">
+      @for (opt of timeOptions; track opt) {
+        <button
+          class="tda-seg"
+          [class.active]="roundDurationSeconds() === opt"
+          [disabled]="!gameState.isHost() || lockedTimeOptions.has(opt)"
+          (click)="setRoundDuration(opt)"
+        >
+          {{ opt }}s @if (lockedTimeOptions.has(opt)) { 🔒 }
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (error()) {
+    <p class="lobby__error">{{ error() }}</p>
+  }
+
+  <div class="tda-label lobby__section-label">Partes convocadas ({{ players().length }}/8)</div>
+  <div class="lobby__players">
+    @for (slot of playerSlots; track slot) {
+      @if (players()[slot]; as player) {
+        <div class="lobby__player-row">
+          <div class="tda-avatar" [style.--tda-avatar-color]="playerColor(player.playerId)">{{ player.initials }}</div>
+          <span class="lobby__player-name">{{ player.name }}</span>
+          <span
+            class="lobby__player-status"
+            [class.lobby__player-status--host]="player.isHost || player.isConnected"
+            [class.lobby__player-status--offline]="!player.isHost && !player.isConnected"
+            [attr.aria-label]="player.isHost ? 'Juiz' : player.isConnected ? 'Conectado' : 'Desconectado'"
+            [title]="player.isHost ? 'Juiz' : player.isConnected ? 'Conectado' : 'Desconectado'"
+          >
+            @if (player.isHost || player.isConnected) {
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="m8 5 4-3 4 3 4-1v5c0 4-3.2 7.2-8 9-4.8-1.8-8-5-8-9V4l4 1Zm4 2.2L9.4 9.3l.9 3 1.7-1 1.7 1 .9-3L12 7.2ZM6 20h12v2H6v-2Z" />
+              </svg>
+            } @else {
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="M12 3a9 9 0 0 1 8.5 6h-2.2A7 7 0 0 0 12 5c-1.1 0-2.1.3-3 .7L7.4 4.1A9 9 0 0 1 12 3Zm-7.5 6H6.7A7 7 0 0 0 5 12c0 1.1.3 2.1.7 3H3.5A9 9 0 0 1 4.5 9ZM12 21a9 9 0 0 1-4.6-1.3l1.6-1.6c.9.6 1.9.9 3 .9a7 7 0 0 0 6.3-4h2.2A9 9 0 0 1 12 21ZM3 3.9 4.4 2.5l17.1 17.1-1.4 1.4L3 3.9Z" />
+              </svg>
+            }
+          </span>
+        </div>
+      } @else {
+        <div class="lobby__player-row lobby__player-row--waiting">
+          <div class="tda-avatar lobby__waiting-avatar" aria-hidden="true">···</div>
+          <span class="lobby__player-name lobby__waiting-name">Aguardando</span>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="lobby__spacer"></div>
+
+  @if (gameState.isHost()) {
+    <button class="tda-btn-primary" [disabled]="!canStart()" (click)="startMatch()">Iniciar julgamento</button>
+    <button class="tda-btn-ghost lobby__cancel-button" type="button" [disabled]="busy()" (click)="cancelAndReturn()">Cancelar e voltar</button>
+    @if (players().length < 2) {
+      <p class="lobby__hint">São necessários pelo menos 2 jogadores.</p>
+    }
+  } @else {
+    <p class="lobby__hint">Aguardando o juiz iniciar o julgamento…</p>
+    <button class="tda-btn-ghost lobby__cancel-button" type="button" [disabled]="busy()" (click)="leaveRoom()">Deixar sala</button>
+  }
+</div>

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AbsurdCourt.Api/AbsurdCourt.Api.csproj" />
+    <Project Path="src/AbsurdCourt.Application/AbsurdCourt.Application.csproj" />
+    <Project Path="src/AbsurdCourt.Domain/AbsurdCourt.Domain.csproj" />
+    <Project Path="src/AbsurdCourt.Infrastructure/AbsurdCourt.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AbsurdCourt.Application.Tests/AbsurdCourt.Application.Tests.csproj" />
+    <Project Path="tests/AbsurdCourt.Api.Tests/AbsurdCourt.Api.Tests.csproj" />
+    <Project Path="tests/AbsurdCourt.Domain.Tests/AbsurdCourt.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
