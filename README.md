@@ -1,73 +1,85 @@
-# Tribunal do Absurdo
+# Court of the Absurd
 
-> A justiça é cega. Nós somos loucos.
+> Justice is blind. We are crazy.
 
-Jogo de festa multiplayer em tempo real, estilo Jackbox/Quiplash: jogadores recebem acusações absurdas e têm um tempo curto pra escrever a defesa mais convincente (ou engraçada) possível. Um juiz movido a IA delibera, escolhe um vencedor por caso e distribui pontos. Depois de alguns casos, vence quem tiver mais pontos.
+Real-time multiplayer party game in the style of Jackbox/Quiplash: players receive absurd accusations and have a short time to write the most convincing (or funniest) defense possible. An AI-powered judge deliberates, picks a winner for each case, and awards points. After a few cases, the player with the most points wins.
 
-Backend em **C# / ASP.NET Core / SignalR**, frontend em **Angular**.
+Backend in **C# / ASP.NET Core / SignalR**, frontend in **Angular**.
+
+## Demo
+
+Try the live demo: [https://bit.ly/4wGCSJo](https://bit.ly/4wGCSJo)
+
+Scan the QR Code to open it on another device:
+
+<p align="center">
+  <a href="https://bit.ly/4wGCSJo">
+    <img src="docs/demo-qr-code.svg" width="240" alt="QR Code for the Court of the Absurd demo" />
+  </a>
+</p>
 
 ## Stack
 
-| Camada | Tecnologia |
+| Layer | Technology |
 |---|---|
 | Backend | .NET 10, ASP.NET Core, SignalR, EF Core + SQLite, MediatR |
-| Juiz | Provider configurável (Anthropic/Claude Haiku 4.5, OpenAI ou Gemini) |
+| Judge | Configurable provider (Anthropic/Claude Haiku 4.5, OpenAI, or Gemini) |
 | Frontend | Angular 21 (standalone components, signals), `@microsoft/signalr` |
-| Arquitetura | DDD + Vertical Slice no backend (`Domain` → `Application` → `Infrastructure` → `Api`) |
+| Architecture | DDD + Vertical Slice in the backend (`Domain` → `Application` → `Infrastructure` → `Api`) |
 
-## Estrutura do repositório
+## Repository structure
 
 ```
 absurd-court-lite/
   server/
     AbsurdCourt.sln
     src/
-      AbsurdCourt.Domain/          # aggregates Room e Match, value objects, eventos de domínio — zero dependências externas
-      AbsurdCourt.Application/     # casos de uso via MediatR (Features/Rooms, Features/Matches)
-      AbsurdCourt.Infrastructure/  # EF Core, adaptadores de IA, SignalR (CourtHub + notifier)
-      AbsurdCourt.Api/             # composition root (Program.cs), sweeper de prazo de rodada
+      AbsurdCourt.Domain/          # Room and Match aggregates, value objects, domain events — zero external dependencies
+      AbsurdCourt.Application/     # MediatR use cases (Features/Rooms, Features/Matches)
+      AbsurdCourt.Infrastructure/  # EF Core, AI adapters, SignalR (CourtHub + notifier)
+      AbsurdCourt.Api/             # composition root (Program.cs), round-deadline sweeper
     tests/
       AbsurdCourt.Domain.Tests/
       AbsurdCourt.Application.Tests/
   client/
     src/app/
-      core/services/               # CourtHubService (SignalR) e GameStateService (estado global em signals)
+      core/services/               # CourtHubService (SignalR) and GameStateService (global signal state)
       features/                    # home, join, lobby, case, waiting, verdict, ended
-      shared/                      # modelos TS, tema visual, utilitários
+      shared/                      # TypeScript models, visual theme, utilities
 ```
 
-## Como rodar localmente
+## Running locally
 
-### Pré-requisitos
+### Prerequisites
 
-- [.NET SDK 10](https://dotnet.microsoft.com/download) ou superior
-- [Node.js](https://nodejs.org/) 20+ e pnpm
-- Uma chave de API do provider escolhido (opcional — sem ela, o juiz usa um parecer de reserva automaticamente e o jogo continua funcionando normalmente)
+- [.NET SDK 10](https://dotnet.microsoft.com/download) or later
+- [Node.js](https://nodejs.org/) 20+ and pnpm
+- An API key for the selected provider (optional — without one, the judge automatically uses a fallback opinion and the game continues to work normally)
 
 ### 1. Backend
 
 ```bash
 cd server/src/AbsurdCourt.Api
 
-# opcional: configure a chave Anthropic (nunca commitada, fica fora do repo via User Secrets)
+# optional: configure the Anthropic key (never committed; kept outside the repository with User Secrets)
 dotnet user-secrets set Anthropic:ApiKey "sk-ant-..."
 
-# alternativamente, use OpenAI
+# alternatively, use OpenAI
 dotnet user-secrets set AI:Provider "OpenAI"
 dotnet user-secrets set OpenAI:ApiKey "sk-..."
 
-# ou use Gemini no free tier via uma chave do Google AI Studio
+# or use Gemini on the free tier with a Google AI Studio key
 dotnet user-secrets set AI:Provider "Gemini"
 dotnet user-secrets set Gemini:ApiKey "AIza..."
 
 dotnet run
 ```
 
-A API sobe em `http://localhost:5122` (perfil `http`) ou `https://localhost:7129` (perfil `https`). Na primeira execução, aplica as migrações do banco automaticamente e semeia ~15 casos absurdos de exemplo — nenhum passo manual de banco de dados é necessário.
+The API starts on `http://localhost:5122` (the `http` profile) or `https://localhost:7129` (the `https` profile). On the first run, it automatically applies database migrations and seeds approximately 15 example absurd cases — no manual database step is required.
 
 ### 2. Frontend
 
-Em outro terminal:
+In another terminal:
 
 ```bash
 cd client
@@ -75,42 +87,42 @@ pnpm install
 pnpm start
 ```
 
-Abre em `http://localhost:4200`. O endereço da API está fixado em `client/src/app/core/services/court-hub.service.ts` (`HUB_URL`) — ajuste se você rodar o backend em outra porta.
+Open `http://localhost:4200`. The API address is hard-coded in `client/src/app/core/services/court-hub.service.ts` (`HUB_URL`) — adjust it if you run the backend on another port.
 
-### 3. Jogar
+### 3. Play
 
-Abra `http://localhost:4200` em duas abas/dispositivos diferentes: uma cria a sala ("Criar novo julgamento"), a outra entra com o código de 6 dígitos exibido. É necessário pelo menos 2 jogadores pra iniciar.
+Open `http://localhost:4200` in two different tabs/devices: one creates the room ("Create new trial"), and the other joins using the displayed 6-digit code. At least 2 players are required to start.
 
-## Como funciona o jogo
+## How the game works
 
-1. **Sala**: o host cria a sala e escolhe quantos casos (3/5/10) e a duração de cada rodada (30/45/60s).
-2. **Caso**: todos recebem a mesma acusação absurda e escrevem uma defesa (até 200 caracteres) antes do tempo acabar.
-3. **Deliberação**: quando todos protocolam (ou o tempo esgota), a IA julga todas as defesas daquele caso de uma vez, escolhe uma vencedora (+1000 pontos) e dá um parecer individual e cômico pra cada jogador.
-4. **Próximo caso / Sentença final**: o host avança pros próximos casos; ao final, o placar acumulado decide o vencedor da sessão, com opção de revanche na mesma sala.
+1. **Room**: the host creates a room and selects the number of cases (3/5/10) and the duration of each round (30/45/60s).
+2. **Case**: everyone receives the same absurd accusation and writes a defense (up to 200 characters) before time runs out.
+3. **Deliberation**: when everyone files their defense (or time expires), the AI judges all defenses for that case at once, chooses a winner (+1000 points), and gives each player an individual, funny opinion.
+4. **Next case / final ruling**: the host advances through the cases; at the end, the cumulative score determines the session winner, with an option for a rematch in the same room.
 
-## Testes
+## Tests
 
 ```bash
 cd server
 dotnet test
 ```
 
-48 testes cobrindo as invariantes dos aggregates (`Domain.Tests`) e os fluxos completos via MediatR, incluindo a idempotência do fechamento de rodada sob concorrência (`Application.Tests`).
+48 tests cover aggregate invariants (`Domain.Tests`) and complete MediatR flows, including idempotent round closing under concurrency (`Application.Tests`).
 
-## Configuração
+## Configuration
 
-- **Banco de dados**: SQLite por padrão (`server/src/AbsurdCourt.Api/appsettings.json`, chave `ConnectionStrings:Court`). Trocar para PostgreSQL/SQL Server é só trocar o provider registrado em `AbsurdCourt.Infrastructure/DependencyInjection.cs`.
-- **Provider do juiz**: `AI:Provider` em `appsettings.json` (`Anthropic` por padrão; também aceita `OpenAI` e `Gemini`). Cada provider tem suas próprias opções (`Anthropic:Model`, `OpenAI:Model` ou `Gemini:Model`). O Gemini pode usar o free tier do Google AI Studio, sujeito aos limites e modelos disponíveis na conta.
-- **Chaves de API**: `appsettings.json` deixa explicitamente os campos `ApiKey` como `<FROM SECRETS>`. Sobrescreva-os por User Secrets ou variáveis de ambiente, por exemplo `Anthropic__ApiKey`, `OpenAI__ApiKey`, `Gemini__ApiKey` e `AI__Provider`.
-- **CORS**: liberado para `http://localhost:4200` em `Program.cs` — ajuste se o frontend rodar em outro endereço.
+- **Database**: SQLite by default (`server/src/AbsurdCourt.Api/appsettings.json`, `ConnectionStrings:Court`). To switch to PostgreSQL/SQL Server, replace the registered provider in `AbsurdCourt.Infrastructure/DependencyInjection.cs`.
+- **Judge provider**: `AI:Provider` in `appsettings.json` (`Anthropic` by default; `OpenAI` and `Gemini` are also accepted). Each provider has its own options (`Anthropic:Model`, `OpenAI:Model`, or `Gemini:Model`). Gemini can use the Google AI Studio free tier, subject to the account's available limits and models.
+- **API keys**: `appsettings.json` explicitly leaves `ApiKey` fields as `<FROM SECRETS>`. Override them using User Secrets or environment variables, for example: `Anthropic__ApiKey`, `OpenAI__ApiKey`, `Gemini__ApiKey`, and `AI__Provider`.
+- **CORS**: enabled for `http://localhost:4200` in `Program.cs` — adjust it if the frontend runs at another address.
 
-## Fora do escopo (por decisão consciente)
+## Out of scope (by design)
 
-- Autenticação/contas de usuário — salas são anônimas e efêmeras.
-- Migração automática de host caso ele se desconecte no meio da partida.
-- Deploy/containerização (Docker, Azure etc.).
-- Voz/vídeo, modo espectador, autoria de casos pela interface.
+- Authentication/user accounts — rooms are anonymous and ephemeral.
+- Automatic host migration if the host disconnects during a match.
+- Deployment/containerization (Docker, Azure, and so on).
+- Voice/video, spectator mode, and authoring cases through the UI.
 
-## Origem
+## Origin
 
-Baseado em um protótipo visual navegável ("Tribunal do Absurdo") — este repositório é a implementação real e jogável, com backend em tempo real e juiz movido a IA de verdade.
+Based on a navigable visual prototype ("Court of the Absurd") — this repository is the real, playable implementation, with a real-time backend and a genuine AI-powered judge.
