@@ -89,4 +89,17 @@ export class Lobby {
       this.busy.set(false);
     }
   }
+
+  async leaveRoom(): Promise<void> {
+    if (this.busy()) return;
+    this.busy.set(true);
+    this.error.set(null);
+    try {
+      await this.gameState.leaveRoom();
+    } catch (err) {
+      this.error.set(err instanceof Error ? err.message : 'Não foi possível deixar a sala.');
+    } finally {
+      this.busy.set(false);
+    }
+  }
 }

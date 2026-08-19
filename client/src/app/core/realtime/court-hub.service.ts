@@ -93,6 +93,10 @@ export class CourtHubService {
     return this.connection.invoke<JoinRoomResult>('JoinRoom', roomCode, playerName);
   }
 
+  leaveRoom(): Promise<void> {
+    return this.connection.invoke('LeaveRoom');
+  }
+
   rejoin(roomCode: string): Promise<RejoinResult> {
     return this.connection.invoke<RejoinResult>('Rejoin', roomCode);
   }

@@ -12,6 +12,11 @@ public sealed class RoomNotJoinableException(Guid roomId) : DomainException("A s
     public Guid RoomId { get; } = roomId;
 }
 
+public sealed class HostCannotLeaveRoomException(Guid roomId) : DomainException("O juiz não pode deixar a sala por esta ação.")
+{
+    public Guid RoomId { get; } = roomId;
+}
+
 public sealed class InvalidReconnectTokenException(Guid roomId) : DomainException("Token de reconexão inválido.")
 {
     public Guid RoomId { get; } = roomId;

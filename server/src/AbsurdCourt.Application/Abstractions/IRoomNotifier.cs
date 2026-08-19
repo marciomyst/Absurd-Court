@@ -12,6 +12,7 @@ public interface IRoomNotifier
     Task PlayerJoinedAsync(Guid roomId, Guid playerId, string playerName, string initials, bool isHost, CancellationToken ct);
     Task PlayerReconnectedAsync(Guid roomId, Guid playerId, CancellationToken ct);
     Task PlayerDisconnectedAsync(Guid roomId, Guid playerId, CancellationToken ct);
+    Task PlayerLeftAsync(Guid roomId, Guid playerId, CancellationToken ct);
     Task RoomSettingsUpdatedAsync(Guid roomId, int caseCount, int roundDurationSeconds, CancellationToken ct);
     Task MatchStartedAsync(Guid roomId, Guid matchId, int caseCount, CancellationToken ct);
     Task CaseStartedAsync(Guid roomId, Guid roundId, int caseNo, int caseTotal, string autos, string hint, DateTime deadlineUtc, CancellationToken ct);

@@ -115,5 +115,6 @@
     }
   } @else {
     <p class="lobby__hint">Aguardando o juiz iniciar o julgamento…</p>
+    <button class="tda-btn-ghost lobby__cancel-button" type="button" [disabled]="busy()" (click)="leaveRoom()">Deixar sala</button>
   }
 </div>

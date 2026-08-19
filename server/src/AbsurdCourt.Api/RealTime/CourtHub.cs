@@ -6,6 +6,7 @@ using AbsurdCourt.Application.Features.Matches.SubmitDefense;
 using AbsurdCourt.Application.Features.Rooms.CreateRoom;
 using AbsurdCourt.Application.Features.Rooms.Disconnect;
 using AbsurdCourt.Application.Features.Rooms.JoinRoom;
+using AbsurdCourt.Application.Features.Rooms.LeaveRoom;
 using AbsurdCourt.Application.Features.Rooms.Rejoin;
 using AbsurdCourt.Application.Features.Rooms.UpdateSettings;
 using AbsurdCourt.Domain.Common;
@@ -54,6 +55,17 @@ public sealed class CourtHub(ISender sender, PlayerSessionStore sessions, ILogge
             await Groups.RemoveFromGroupAsync(result.PreviousConnectionId, GroupNames.ForRoom(result.Room.RoomId));
         await RememberIdentityAsync(result.Room.RoomId, result.YourPlayerId);
         return result;
+    });
+
+    public Task LeaveRoom() => Guarded(async () =>
+    {
+        var roomId = GetRoomId();
+        var playerId = GetPlayerId();
+        await sender.Send(new LeaveRoomCommand(roomId, playerId, Context.ConnectionId));
+        sessions.Remove(GetSessionId());
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupNames.ForRoom(roomId));
+        Context.Items.Remove(RoomIdKey);
+        Context.Items.Remove(PlayerIdKey);
     });
 
     public Task UpdateSettings(int caseCount, int roundDurationSeconds) => Guarded(() =>

@@ -31,6 +31,12 @@ public sealed class PlayerDisconnectedHandler(IRoomNotifier notifier) : INotific
         notifier.PlayerDisconnectedAsync(n.DomainEvent.RoomId, n.DomainEvent.PlayerId, ct);
 }
 
+public sealed class PlayerLeftHandler(IRoomNotifier notifier) : INotificationHandler<DomainEventNotification<PlayerLeft>>
+{
+    public Task Handle(DomainEventNotification<PlayerLeft> n, CancellationToken ct) =>
+        notifier.PlayerLeftAsync(n.DomainEvent.RoomId, n.DomainEvent.PlayerId, ct);
+}
+
 public sealed class RoomSettingsChangedHandler(IRoomNotifier notifier) : INotificationHandler<DomainEventNotification<RoomSettingsChanged>>
 {
     public Task Handle(DomainEventNotification<RoomSettingsChanged> n, CancellationToken ct) =>

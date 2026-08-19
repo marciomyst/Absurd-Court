@@ -15,6 +15,9 @@ public sealed class SignalRRoomNotifier(IHubContext<CourtHub> hub) : IRoomNotifi
     public Task PlayerDisconnectedAsync(Guid roomId, Guid playerId, CancellationToken ct) =>
         Group(roomId).SendAsync("PlayerDisconnected", new { playerId }, ct);
 
+    public Task PlayerLeftAsync(Guid roomId, Guid playerId, CancellationToken ct) =>
+        Group(roomId).SendAsync("PlayerLeft", new { playerId }, ct);
+
     public Task RoomSettingsUpdatedAsync(Guid roomId, int caseCount, int roundDurationSeconds, CancellationToken ct) =>
         Group(roomId).SendAsync("RoomSettingsUpdated", new { caseCount, roundDurationSeconds }, ct);
 

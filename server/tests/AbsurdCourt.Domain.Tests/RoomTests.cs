@@ -39,6 +39,20 @@ public class RoomTests
     }
 
     [Fact]
+    public void Leave_removes_a_lobby_participant_and_frees_the_slot()
+    {
+        var (room, _) = Room.Create(RoomCode.Generate(), "Host", "conn-0", Now);
+        var guest = room.AddPlayer("Guest", "conn-1", Now);
+
+        room.Leave(guest.Id);
+
+        Assert.Single(room.Players);
+        Assert.DoesNotContain(room.Players, player => player.Id == guest.Id);
+        room.AddPlayer("Replacement", "conn-2", Now);
+        Assert.Equal(2, room.Players.Count);
+    }
+
+    [Fact]
     public void BeginMatch_with_single_player_throws()
     {
         var (room, _) = Room.Create(RoomCode.Generate(), "Host", "conn-0", Now);

@@ -15,6 +15,10 @@ export interface PlayerDisconnectedEvent {
   playerId: string;
 }
 
+export interface PlayerLeftEvent {
+  playerId: string;
+}
+
 export interface RoomSettingsUpdatedEvent {
   caseCount: number;
   roundDurationSeconds: number;

@@ -36,6 +36,12 @@ export class RoomStateService {
     this.room.set({ ...room, players: [...room.players, player] });
   }
 
+  removePlayer(playerId: string): void {
+    const room = this.room();
+    if (!room) return;
+    this.room.set({ ...room, players: room.players.filter((player) => player.playerId !== playerId) });
+  }
+
   updateSettings(caseCount: number, roundDurationSeconds: number): void {
     const room = this.room();
     if (!room) return;

@@ -88,6 +88,20 @@ public sealed class Room : AggregateRoot
         Raise(new PlayerDisconnected(Id, playerId));
     }
 
+    /// <summary>Removes a participant from a lobby permanently, freeing the room slot.</summary>
+    public void Leave(Guid playerId)
+    {
+        if (Status != RoomStatus.Lobby) throw new RoomNotJoinableException(Id);
+        if (playerId == HostPlayerId) throw new HostCannotLeaveRoomException(Id);
+
+        var player = _players.FirstOrDefault(p => p.Id == playerId);
+        if (player is null) return;
+
+        _players.Remove(player);
+        _rematchReadyPlayerIds.Remove(playerId);
+        Raise(new PlayerLeft(Id, playerId));
+    }
+
     public void UpdateSettings(int caseCount, int roundDurationSeconds)
     {
         if (Status != RoomStatus.Lobby) throw new RoomNotJoinableException(Id);

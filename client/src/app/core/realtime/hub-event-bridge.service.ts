@@ -10,6 +10,7 @@ import type {
   DeliberationReadyEvent,
   MatchEndedEvent,
   PlayerDisconnectedEvent,
+  PlayerLeftEvent,
   PlayerJoinedEvent,
   PlayerReconnectedEvent,
   RematchStatusEvent,
@@ -43,6 +44,8 @@ export class HubEventBridgeService {
     this.hub.on<PlayerDisconnectedEvent>('PlayerDisconnected', (e) =>
       this.room.updatePlayer(e.playerId, { isConnected: false }),
     );
+
+    this.hub.on<PlayerLeftEvent>('PlayerLeft', (e) => this.room.removePlayer(e.playerId));
 
     this.hub.on<RoomSettingsUpdatedEvent>('RoomSettingsUpdated', (e) =>
       this.room.updateSettings(e.caseCount, e.roundDurationSeconds),

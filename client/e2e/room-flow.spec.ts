@@ -45,3 +45,31 @@ test('juiz pode cancelar a pauta e criar uma nova sala na mesma aba', async ({ p
   await page.getByRole('button', { name: 'Criar novo julgamento' }).click();
   await expect(page.locator('.lobby__room-code')).toBeVisible();
 });
+
+test('participante pode deixar a sala e criar um julgamento na mesma aba', async ({ browser }) => {
+  const hostContext = await browser.newContext();
+  const hostPage = await hostContext.newPage();
+  await hostPage.goto('/');
+  await hostPage.locator('#home-name').fill('Juiz E2E');
+  await hostPage.getByRole('button', { name: 'Criar novo julgamento' }).click();
+  const roomCode = (await hostPage.locator('.lobby__room-code').textContent())?.trim();
+
+  const participantContext = await browser.newContext();
+  const participantPage = await participantContext.newPage();
+  await participantPage.goto('/');
+  await participantPage.getByRole('button', { name: 'Participar de um julgamento' }).click();
+  await participantPage.getByLabel('Código do processo').fill(roomCode!);
+  await participantPage.locator('#join-name').fill('Parte E2E');
+  await participantPage.getByRole('button', { name: 'Entrar no julgamento' }).click();
+
+  await participantPage.getByRole('button', { name: 'Deixar sala' }).click();
+  await expect(participantPage.locator('#home-name')).toBeVisible();
+  await expect(hostPage.locator('.lobby__player-row:not(.lobby__player-row--waiting)')).toHaveCount(1);
+
+  await participantPage.locator('#home-name').fill('Novo Juiz E2E');
+  await participantPage.getByRole('button', { name: 'Criar novo julgamento' }).click();
+  await expect(participantPage.locator('.lobby__room-code')).toBeVisible();
+
+  await participantContext.close();
+  await hostContext.close();
+});

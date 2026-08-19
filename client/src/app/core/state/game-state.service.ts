@@ -117,6 +117,11 @@ export class GameStateService {
     }
   }
 
+  async leaveRoom(): Promise<void> {
+    await this.hub.leaveRoom();
+    await this.goHome();
+  }
+
   goJoin(): void {
     this.screenState.showJoin();
   }

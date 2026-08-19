@@ -8,6 +8,8 @@ public sealed record PlayerReconnected(Guid RoomId, Guid PlayerId) : IDomainEven
 
 public sealed record PlayerDisconnected(Guid RoomId, Guid PlayerId) : IDomainEvent;
 
+public sealed record PlayerLeft(Guid RoomId, Guid PlayerId) : IDomainEvent;
+
 public sealed record RoomSettingsChanged(Guid RoomId, int CaseCount, int RoundDurationSeconds) : IDomainEvent;
 
 public sealed record RematchStatusChanged(Guid RoomId, int ReadyCount, int TotalConnectedPlayers, bool AllReady) : IDomainEvent;
