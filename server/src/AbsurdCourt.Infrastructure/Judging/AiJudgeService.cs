@@ -30,12 +30,16 @@ public sealed class AiJudgeService(IAiProvider provider, ILogger<AiJudgeService>
             DEFESAS APRESENTADAS:
             {defensesText}
 
-            Julgue este caso. Escolha exatamente um réu vencedor — o mais convincente ou engraçado — e
-            dê a ele 1000 pontos. Dê aos demais uma pontuação de consolação entre 100 e 600, proporcional
-            ao mérito da defesa. Devolva exatamente {submissions.Count} parecer(es), um para cada defesa.
-            Escreva um parecer individual e cômico para cada réu. No campo "reu" da resposta estruturada,
-            use exclusivamente o rótulo de uma letra de cada defesa (por exemplo, "A" e "B"), na mesma
-            ordem em que as defesas foram apresentadas.
+            Julgue comparativamente todas as defesas. Antes de pontuar, avalie cada uma pela rubrica:
+            aderência aos autos (0-400), coerência e qualidade do argumento (0-300), criatividade cômica
+            pertinente ao caso (0-200) e clareza (0-100). Some os critérios e use o total exato no campo
+            "pontos" (0-1000). O vencedor é obrigatoriamente a defesa com a maior nota total — nunca escolha
+            por rótulo, ordem de apresentação ou sorte. Não empate: em igualdade de nota, compare primeiro
+            aderência, depois coerência, criatividade e clareza; persistindo a igualdade, vença o menor rótulo.
+            Marque "vencedor" apenas para essa maior nota. Devolva exatamente {submissions.Count} parecer(es),
+            um para cada defesa, explicando brevemente no parecer o mérito que determinou a nota. No campo
+            "reu" da resposta estruturada, use exclusivamente o rótulo de uma letra de cada defesa (por exemplo,
+            "A" e "B"), na mesma ordem em que as defesas foram apresentadas.
             """;
 
         try
@@ -58,7 +62,7 @@ public sealed class AiJudgeService(IAiProvider provider, ILogger<AiJudgeService>
 
     private RoundJudgment BuildJudgment(List<(string Label, Guid PlayerId)> labels, IReadOnlyList<AiRuling> rulings)
     {
-        var verdicts = new Dictionary<Guid, Verdict>();
+        var evaluated = new List<(string Label, Guid PlayerId, string Opinion, int Points)>();
         var usedOpinions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         for (var index = 0; index < labels.Count; index++)
         {
@@ -81,31 +85,45 @@ public sealed class AiJudgeService(IAiProvider provider, ILogger<AiJudgeService>
             if (!usedOpinions.Add(opinion.Trim()))
                 opinion = $"{opinion.Trim()} Análise individual registrada para o réu {label}.";
 
-            verdicts[playerId] = ruling switch
-            {
-                { IsWinner: true } => Verdict.Winner(opinion),
-                not null => Verdict.Create(opinion, ruling.Points),
-                null => Verdict.Create(opinion, 300),
-            };
+            evaluated.Add((label, playerId, opinion, Math.Clamp(ruling?.Points ?? 300, 0, Verdict.MaxPoints)));
         }
 
-        if (verdicts.Count > 0 && verdicts.Values.Count(v => v.Points == Verdict.MaxPoints) != 1)
-        {
-            var topPlayerId = verdicts.OrderByDescending(kv => kv.Value.Points).First().Key;
-            verdicts[topPlayerId] = Verdict.Winner(verdicts[topPlayerId].ParecerText);
-        }
+        var winner = evaluated
+            .OrderByDescending(candidate => candidate.Points)
+            .ThenBy(candidate => candidate.Label, StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        var verdicts = evaluated.ToDictionary(
+            candidate => candidate.PlayerId,
+            candidate => candidate.PlayerId == winner.PlayerId
+                ? Verdict.Winner(candidate.Opinion)
+                : Verdict.Create(candidate.Opinion, Math.Min(candidate.Points, Verdict.MaxPoints - 1)));
 
         return new RoundJudgment(verdicts);
     }
 
-    private static RoundJudgment Fallback(IReadOnlyList<DefenseSubmission> submissions) =>
-        new(submissions
+    private static RoundJudgment Fallback(IReadOnlyList<DefenseSubmission> submissions)
+    {
+        var evaluated = submissions
             .Select((submission, index) => new
             {
+                Label = IndexToLabel(index),
                 submission.PlayerId,
-                Verdict = Verdict.Create(FallbackOpinion(IndexToLabel(index)), 300),
+                Opinion = FallbackOpinion(IndexToLabel(index)),
+                Points = Math.Min(600, 100 + submission.Text.Trim().Length * 3),
             })
-            .ToDictionary(x => x.PlayerId, x => x.Verdict));
+            .ToList();
+        var winner = evaluated
+            .OrderByDescending(candidate => candidate.Points)
+            .ThenBy(candidate => candidate.Label, StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        return new RoundJudgment(evaluated.ToDictionary(
+            candidate => candidate.PlayerId,
+            candidate => candidate.PlayerId == winner?.PlayerId
+                ? Verdict.Winner(candidate.Opinion)
+                : Verdict.Create(candidate.Opinion, candidate.Points)));
+    }
 
     private static string FallbackOpinion(string label) =>
         $"O tribunal registrou a defesa do réu {label} e determina análise complementar específica para esta manifestação.";

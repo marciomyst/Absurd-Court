@@ -32,6 +32,26 @@ public class SecurityInfrastructureTests
     }
 
     [Fact]
+    public async Task Judge_service_selects_the_highest_score_not_the_provider_winner_flag()
+    {
+        var firstPlayer = Guid.NewGuid();
+        var secondPlayer = Guid.NewGuid();
+        var provider = new StubAiProvider([
+            new AiRuling("A", true, "A defesa A cumpriu poucos requisitos dos autos.", 450),
+            new AiRuling("B", false, "A defesa B demonstrou melhor aderência e coerência.", 820),
+        ]);
+        var judge = new AiJudgeService(provider, NullLogger<AiJudgeService>.Instance);
+
+        var judgment = await judge.JudgeRoundAsync("Autos", "Caso", [
+            new DefenseSubmission(firstPlayer, "Defesa A"),
+            new DefenseSubmission(secondPlayer, "Defesa B"),
+        ]);
+
+        Assert.Equal(450, judgment.VerdictsByPlayer[firstPlayer].Points);
+        Assert.Equal(1000, judgment.VerdictsByPlayer[secondPlayer].Points);
+    }
+
+    [Fact]
     public async Task Mock_judge_returns_deterministic_rulings_without_external_calls()
     {
         var judge = new MockAiProvider();
