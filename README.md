@@ -2,7 +2,7 @@
 
 > Justice is blind. We are crazy.
 
-Real-time multiplayer party game in the style of Jackbox/Quiplash: players receive absurd accusations and have a short time to write the most convincing (or funniest) defense possible. An AI-powered judge deliberates, picks a winner for each case, and awards points. After a few cases, the player with the most points wins.
+Real-time multiplayer party game in the style of Jackbox/Quiplash: players receive absurd accusations and have a short time to write the most convincing (or funniest) defense possible. At the center of each round, a generative-AI judge reads the case file, compares every defense through a scoring rubric, and writes a distinct, deadpan judicial opinion for each player before determining the winner. After a few cases, the player with the most points wins.
 
 Backend in **C# / ASP.NET Core / SignalR**, frontend in **Angular**.
 
