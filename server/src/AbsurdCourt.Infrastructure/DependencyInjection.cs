@@ -61,6 +61,12 @@ public static class DependencyInjection
             client.BaseAddress = new Uri("https://generativelanguage.googleapis.com");
             client.DefaultRequestHeaders.Add("x-goog-api-key", opts.ApiKey);
         });
+        services.AddHttpClient<GeminiCaseGenerator>((sp, client) =>
+        {
+            var opts = sp.GetRequiredService<IOptions<GeminiOptions>>().Value;
+            client.BaseAddress = new Uri("https://generativelanguage.googleapis.com");
+            client.DefaultRequestHeaders.Add("x-goog-api-key", opts.ApiKey);
+        });
         services.AddSingleton<MockAiProvider>();
         services.AddScoped<IAiProvider>(sp =>
         {
@@ -75,6 +81,14 @@ public static class DependencyInjection
             };
         });
         services.AddScoped<IJudgeService, AiJudgeService>();
+        services.AddScoped<NoopCaseGenerator>();
+        services.AddScoped<ICaseGenerator>(sp =>
+            string.Equals(sp.GetRequiredService<IOptions<AiOptions>>().Value.Provider, "gemini", StringComparison.OrdinalIgnoreCase)
+                ? sp.GetRequiredService<GeminiCaseGenerator>()
+                : sp.GetRequiredService<NoopCaseGenerator>());
+        services.AddSingleton<RoomCasePreparationService>();
+        services.AddSingleton<IRoomCasePreparation>(sp => sp.GetRequiredService<RoomCasePreparationService>());
+        services.AddHostedService(sp => sp.GetRequiredService<RoomCasePreparationService>());
 
         return services;
     }

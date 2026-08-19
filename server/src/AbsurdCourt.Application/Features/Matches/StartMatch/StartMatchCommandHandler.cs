@@ -6,7 +6,7 @@ using MediatR;
 namespace AbsurdCourt.Application.Features.Matches.StartMatch;
 
 public sealed class StartMatchCommandHandler(
-    IRoomRepository rooms, IMatchRepository matches, ICaseBankRepository caseBank, IUnitOfWork uow)
+    IRoomRepository rooms, IMatchRepository matches, ICaseBankRepository caseBank, IRoomCasePreparation casePreparation, IUnitOfWork uow)
     : IRequestHandler<StartMatchCommand>
 {
     public async Task Handle(StartMatchCommand request, CancellationToken ct)
@@ -19,7 +19,14 @@ public sealed class StartMatchCommandHandler(
 
         room.BeginMatch();
 
-        var caseIds = await caseBank.GetRandomCaseIdsAsync(room.Settings.CaseCount, ct);
+        const int initialCaseCount = 3;
+        var caseIds = casePreparation.TakeInitial(room.Id, initialCaseCount).ToList();
+        var fallbackCaseIds = await caseBank.GetRandomCaseIdsAsync(room.Settings.CaseCount, ct);
+        foreach (var fallbackCaseId in fallbackCaseIds)
+        {
+            if (caseIds.Count == room.Settings.CaseCount) break;
+            if (!caseIds.Contains(fallbackCaseId)) caseIds.Add(fallbackCaseId);
+        }
         var match = Match.Start(
             room.Id,
             room.Players.Select(p => p.Id).ToList(),
@@ -29,5 +36,7 @@ public sealed class StartMatchCommandHandler(
         matches.Add(match);
 
         await uow.SaveChangesAsync(ct);
+        if (room.Settings.CaseCount > initialCaseCount)
+            casePreparation.PrepareRemaining(room.Id, room.Settings.CaseCount - initialCaseCount, initialCaseCount);
     }
 }

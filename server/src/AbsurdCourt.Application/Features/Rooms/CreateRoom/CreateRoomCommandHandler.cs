@@ -5,7 +5,7 @@ using MediatR;
 
 namespace AbsurdCourt.Application.Features.Rooms.CreateRoom;
 
-public sealed class CreateRoomCommandHandler(IRoomRepository rooms, IUnitOfWork uow)
+public sealed class CreateRoomCommandHandler(IRoomRepository rooms, IRoomCasePreparation casePreparation, IUnitOfWork uow)
     : IRequestHandler<CreateRoomCommand, CreateRoomResult>
 {
     public async Task<CreateRoomResult> Handle(CreateRoomCommand request, CancellationToken ct)
@@ -17,6 +17,7 @@ public sealed class CreateRoomCommandHandler(IRoomRepository rooms, IUnitOfWork 
         var (room, host) = Room.Create(code, request.HostName, request.ConnectionId, DateTime.UtcNow);
         rooms.Add(room);
         await uow.SaveChangesAsync(ct);
+        casePreparation.PrepareInitial(room.Id);
 
         return new CreateRoomResult(room.ToSnapshot(), host.Id, host.ReconnectToken);
     }

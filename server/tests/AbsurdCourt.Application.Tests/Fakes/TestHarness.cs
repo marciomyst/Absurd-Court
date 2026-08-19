@@ -23,6 +23,7 @@ public sealed class TestHarness : IDisposable
         services.AddSingleton<IRoomRepository>(Rooms);
         services.AddSingleton<IMatchRepository>(Matches);
         services.AddSingleton<ICaseBankRepository>(CaseBank);
+        services.AddSingleton<IRoomCasePreparation, FakeRoomCasePreparation>();
         services.AddSingleton<IJudgeService>(Judge);
         services.AddSingleton<IUnitOfWork>(UnitOfWork);
         _provider = services.BuildServiceProvider();

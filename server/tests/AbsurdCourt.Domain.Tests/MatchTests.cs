@@ -125,6 +125,22 @@ public class MatchTests
     }
 
     [Fact]
+    public void ReplaceFutureCaseFiles_keeps_current_case_and_updates_the_next_one()
+    {
+        var firstCase = Guid.NewGuid();
+        var fallbackCase = Guid.NewGuid();
+        var generatedCase = Guid.NewGuid();
+        var match = Match.Start(RoomId, [Alice, Bob], [firstCase, fallbackCase], 60, Now);
+
+        match.ReplaceFutureCaseFiles(1, [generatedCase]);
+
+        Assert.Equal(firstCase, match.CurrentRound!.CaseFileId);
+        CloseAndRevealCurrentRound(match);
+        match.AdvanceToNextRound(Now);
+        Assert.Equal(generatedCase, match.CurrentRound!.CaseFileId);
+    }
+
+    [Fact]
     public void Complete_before_last_round_revealed_throws()
     {
         var match = StartMatch(caseCount: 2, Alice, Bob);

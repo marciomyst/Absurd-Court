@@ -118,6 +118,16 @@ public sealed class Match : AggregateRoot
         OpenRound(nowUtc);
     }
 
+    /// <summary>Replaces only cases that have not been opened yet, keeping an active match stable.</summary>
+    public void ReplaceFutureCaseFiles(int startIndex, IReadOnlyList<Guid> caseFileIds)
+    {
+        if (Status != MatchStatus.InProgress || caseFileIds.Count == 0) return;
+
+        var firstReplaceableIndex = Math.Max(startIndex, _rounds.Count);
+        for (var index = firstReplaceableIndex; index < _caseFileSequence.Count && index - firstReplaceableIndex < caseFileIds.Count; index++)
+            _caseFileSequence[index] = caseFileIds[index - firstReplaceableIndex];
+    }
+
     public void Complete(DateTime nowUtc)
     {
         if (CurrentRound?.Status != RoundStatus.Revealed) throw new RoundNotRevealedException(Id);
