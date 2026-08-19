@@ -18,6 +18,13 @@ Scan the QR Code to open it on another device:
   </a>
 </p>
 
+### How to play
+
+1. One player creates a trial and shares the room code or QR Code.
+2. The other players join, choose a name, and submit a defense before the timer ends.
+3. The AI judge compares the defenses, issues individual opinions, and awards the round points.
+4. The host advances through the cases; the highest total score wins the trial.
+
 ## Stack
 
 | Layer | Technology |
